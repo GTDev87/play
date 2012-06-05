@@ -1,0 +1,1 @@
+cd `echo -n "$1" | tr "[A-Z]" "[a-z]" | md5sum | cut -d " " -f 1`
