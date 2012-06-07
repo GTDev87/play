@@ -1,9 +1,9 @@
 -module(solution).
 -export([main/0]).
+-import(lists).
 
 main() ->
-  Cases = get_test_cases(get_int_from_stdin()).
-%  io:write("Sequences are ~s~n", Cases).
+  lists:foreach(fun(Solution) -> io:fwrite("~s~n", [is_alice(Solution)]) end, get_test_cases(get_int_from_stdin())).
 
 map_n_times(F, 0) -> [];
 map_n_times(F, Times) -> [F() | map_n_times(F, Times-1)].
@@ -15,18 +15,16 @@ get_case(NumElements) ->
   map_n_times(fun() -> get_int_from_stdin() end, NumElements).
 
 is_sorted(Array) ->
-  case list:sort(Array) == Array of
+  case lists:sort(Array) == Array of
     true -> true;
     false -> false
   end.
-  
 
 win_test_case(TestCase) ->
-  NextCases = [list:delete(Element, TestCase) || Element <- TestCase],
-
-  case list:any(fun(Element) -> is_sorted(Element) end, NextCases) of
+  NextCases = [lists:delete(Element, TestCase) || Element <- TestCase],
+  case lists:any(fun(Element) -> is_sorted(Element) end, NextCases) of
     true -> true;
-    false -> case list:all(fun(Element) -> win_test_case(Element) == false end, NextCases) of
+    false -> case lists:all(fun(Element) -> win_test_case(Element) end, NextCases) of
       true -> false;
       false -> true
       end
@@ -35,5 +33,8 @@ win_test_case(TestCase) ->
 
 get_int_from_stdin() ->
   {ok, [Data]} = io:fread("","~d"),
-  io:fwrite("var = ~w~n", [Data]),
   Data.
+
+is_alice(true) -> "Alice";
+is_alice(false) -> "Bob".
+
