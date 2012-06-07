@@ -5,7 +5,7 @@
 main() ->
   lists:foreach(fun(Solution) -> io:fwrite("~s~n", [is_alice(Solution)]) end, get_test_cases(get_int_from_stdin())).
 
-map_n_times(F, 0) -> [];
+map_n_times(_, 0) -> [];
 map_n_times(F, Times) -> [F() | map_n_times(F, Times-1)].
  
 get_test_cases(NumCases) ->
@@ -14,10 +14,11 @@ get_test_cases(NumCases) ->
 get_case(NumElements) ->
   map_n_times(fun() -> get_int_from_stdin() end, NumElements).
 
-is_sorted(Array) ->
-  case lists:sort(Array) == Array of
-    true -> true;
-    false -> false
+is_sorted([_]) -> true;
+is_sorted([H|T]) ->
+  case H > hd(T) of
+    true -> false;
+    false -> is_sorted(T)
   end.
 
 win_test_case(TestCase) ->
