@@ -1,6 +1,5 @@
 -module(solution).
 -export([main/0]).
--import(dict).
 
 main() ->
   foreach(fun(Solution) -> io:fwrite("~s~n", [is_alice(Solution)]) end, get_test_cases(get_int_from_stdin())).
@@ -39,8 +38,10 @@ almost_sorted([H|T], false) ->
     false -> almost_sorted(T, false)
   end.
 
-lazy_list_comprehension([],_,_) -> [];
-lazy_list_comprehension([H|T],A,F) -> fun() -> [F(H,A) | lazy_list_comprehension(T,A,F)] end.
+lazy_list_comprehension(A, F) -> lazy_list_comprehend(A,A,F).
+
+lazy_list_comprehend([],_,_) -> [];
+lazy_list_comprehend([H|T],A,F) -> fun() -> [F(H,A) | lazy_list_comprehend(T,A,F)] end.
 
 lazy_list_all(_,[]) -> true;
 lazy_list_all(F, LazyList) ->
@@ -54,7 +55,7 @@ win_test_case(TestCase) ->
     true ->
       true;
     false ->
-      case lazy_list_all(fun(Element) -> win_test_case(Element) end, lazy_list_comprehension(TestCase, TestCase, fun(Ele, Array) -> Array -- [Ele] end)) of
+      case lazy_list_all(fun(Element) -> win_test_case(Element) end, lazy_list_comprehension(TestCase, fun(Ele, Array) -> Array -- [Ele] end)) of
       true -> false;
       false -> true
     end
