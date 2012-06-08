@@ -1,9 +1,14 @@
 -module(solution).
 -export([main/0]).
--import(lists).
+-import(dict).
 
 main() ->
-  lists:foreach(fun(Solution) -> io:fwrite("~s~n", [is_alice(Solution)]) end, get_test_cases(get_int_from_stdin())).
+  foreach(fun(Solution) -> io:fwrite("~s~n", [is_alice(Solution)]) end, get_test_cases(get_int_from_stdin())).
+
+foreach(_, []) -> ok;
+foreach(F, [H|T]) ->
+  F(H),
+  foreach(F,T).
 
 map_n_times(_, 0) -> [];
 map_n_times(F, Times) -> [F() | map_n_times(F, Times-1)].
@@ -34,8 +39,6 @@ almost_sorted([H|T], false) ->
     false -> almost_sorted(T, false)
   end.
 
-lazy_list_comprehension([],_) -> [];
-lazy_list_comprehension([H|T], F) -> fun() -> [F(H) || lazy_list_comprehension(T,F)] end.
 lazy_list_comprehension([],_,_) -> [];
 lazy_list_comprehension([H|T],A,F) -> fun() -> [F(H,A) | lazy_list_comprehension(T,A,F)] end.
 
@@ -51,8 +54,7 @@ win_test_case(TestCase) ->
     true ->
       true;
     false ->
-      LazyDeletionCombinations = lazy_list_comprehension(TestCase, TestCase, fun(Ele, Array) -> Array -- [Ele] end),
-      case lazy_list_all(fun(Element) -> win_test_case(Element) end, LazyDeletionCombinations) of
+      case lazy_list_all(fun(Element) -> win_test_case(Element) end, lazy_list_comprehension(TestCase, TestCase, fun(Ele, Array) -> Array -- [Ele] end)) of
       true -> false;
       false -> true
     end
