@@ -14,21 +14,41 @@ get_test_cases(NumCases) ->
 get_case(NumElements) ->
   map_n_times(fun() -> get_int_from_stdin() end, NumElements).
 
-is_sorted([_]) -> true;
-is_sorted([H|T]) ->
+almost_sorted([_,_], true) -> true;
+almost_sorted([_], false) -> true;
+almost_sorted([H|T], true) ->
+  %need to delete Head
+  %io:fwrite("true ~w~w~n", [H, T]),
+  ThirdIndx = lists:nth(2,T),
+  case H > hd(T) of
+    true -> almost_sorted(T, false);
+    false -> case H > ThirdIndx of
+      true -> almost_sorted([H,hd(T)|lists:nthtail(2,T)], false);
+      false -> case hd(T) > ThirdIndx of
+        true -> almost_sorted([H|tl(T)], false);
+        false -> almost_sorted(T, true)
+      end
+    end
+  end;
+
+almost_sorted([H|T], false) ->
+  %io:fwrite("false ~w~w~n", [H,T]),
   case H > hd(T) of
     true -> false;
-    false -> is_sorted(T)
+    false -> almost_sorted(T, false)
   end.
 
 win_test_case(TestCase) ->
-  NextCases = [lists:delete(Element, TestCase) || Element <- TestCase],
-  case lists:any(fun(Element) -> is_sorted(Element) end, NextCases) of
-    true -> true;
-    false -> case lists:all(fun(Element) -> win_test_case(Element) end, NextCases) of
+  case almost_sorted(TestCase, true) of
+    true ->
+      %io:fwrite("sorted bitches ~n"),
+      true;
+    false -> 
+      %io:fwrite("not sorted cont ~n"),
+      case lists:all(fun(Element) -> win_test_case(Element) end, [lists:delete(Element, TestCase) || Element <- TestCase]) of
       true -> false;
       false -> true
-      end
+    end
   end.
 
 
