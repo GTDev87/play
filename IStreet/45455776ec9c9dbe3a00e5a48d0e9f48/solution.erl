@@ -38,10 +38,19 @@ almost_sorted([H|T], false) ->
     false -> almost_sorted(T, false)
   end.
 
-lazy_list_comprehension(A, F) -> lazy_list_comprehend(A,A,F).
+lazy_list_comprehension(A,F) -> lazy_list_comprehension(A,F, fun(_,_) ->  true end).
+lazy_list_comprehension(A,F,G) -> lazy_list_comprehend(A,A,F,G).
 
-lazy_list_comprehend([],_,_) -> [];
-lazy_list_comprehend([H|T],A,F) -> fun() -> [F(H,A) | lazy_list_comprehend(T,A,F)] end.
+lazy_list_comprehend([],_,_,_) -> [];
+lazy_list_comprehend([H|T],A,F,G) -> 
+  fun() ->
+    case G(H,A) of
+      true -> [F(H,A) | lazy_list_comprehend(T,A,F,G)];
+      false -> 
+        NextComp = lazy_list_comprehend(T,A,F,G),
+        NextComp()
+    end
+  end.
 
 lazy_list_all(_,[]) -> true;
 lazy_list_all(F, LazyList) ->
