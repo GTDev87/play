@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 int int_from_stdin(){
   int digit;
@@ -73,20 +74,31 @@ int player_wins(int* testcase, int bitmask, int test_size){
   return almost_sorted(testcase_subarray, 0);
 }
 
-int solve_for_player(int* testcase, int bitmask, int test_size){
+int solve_for_player(int* testcase, int bitmask, int test_size, char* sol_map){
   int sub_array_index, bitmask_index;
   int i;
+  if(sol_map[bitmask] == 1){
+     return 1;
+  }
+
+  if(sol_map[bitmask] == 2){
+     return 0;
+  }
+  
   if(player_wins(testcase, bitmask, test_size)){
+    sol_map[bitmask] = 1;
     return 1;
   }else{
     for(sub_array_index = 0; sub_array_index < test_size; ++sub_array_index){
       bitmask_index = (1 << sub_array_index);
       if(bitmask & bitmask_index){
-        if(!solve_for_player(testcase, bitmask ^ bitmask_index, test_size)){
+        if(!solve_for_player(testcase, bitmask ^ bitmask_index, test_size, sol_map)){
+          sol_map[bitmask] = 1;
           return 1;
         }
       }
     }
+    sol_map[bitmask] = 2;
     return 0;
   }
 }
@@ -103,8 +115,11 @@ void solve_testcase(int array_size){
   int index, initial_bitmask;
   int testcase[array_size];
   get_testcase(array_size, testcase);
+  int mapsize = 1 << array_size;
+  char solution_map[mapsize];
+  memset(solution_map, 0, mapsize);
   initial_bitmask = ((1 << array_size) -1);
-  print_alice(solve_for_player(testcase, initial_bitmask,array_size)); 
+  print_alice(solve_for_player(testcase, initial_bitmask,array_size,solution_map)); 
 }
 
 void solve_testcases(int num_cases){
