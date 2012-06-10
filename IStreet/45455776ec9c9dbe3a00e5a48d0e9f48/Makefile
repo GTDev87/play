@@ -1,8 +1,5 @@
-erlang:
-	erlc solution.erl
+main.o: main.c
+	gcc -c main.c
 
-clean:
-	rm *.beam
-
-run:
-	erl -noshell -s solution main -s init stop
+main: main.o
+	gcc main.o -o main
