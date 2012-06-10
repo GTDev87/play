@@ -8,37 +8,25 @@ main() ->
 map_n_times(_, 0) -> [];
 map_n_times(F, Times) -> [F() | map_n_times(F, Times-1)].
  
-get_test_cases(NumCases) ->
-  map_n_times(fun() -> win_test_case(get_case(get_int_from_stdin())) end, NumCases).
+get_test_cases(NumCases) -> map_n_times(fun() -> win_test_case(get_case(get_int_from_stdin())) end, NumCases).
 
-get_case(NumElements) ->
-  map_n_times(fun() -> get_int_from_stdin() end, NumElements).
+get_case(NumElements) -> map_n_times(fun() -> get_int_from_stdin() end, NumElements).
 
-almost_sorted([_,_], true) -> true;
-almost_sorted([_], false) -> true;
-almost_sorted([H|T], true) ->
-  ThirdIndx = lists:nth(2,T),
-  case H > hd(T) of
-    true -> almost_sorted(T, false);
-    false -> case H > ThirdIndx of
-      true -> almost_sorted([H,hd(T)|lists:nthtail(2,T)], false);
-      false -> case hd(T) > ThirdIndx of
-        true -> almost_sorted([H|tl(T)], false);
-        false -> almost_sorted(T, true)
-      end
-    end
-  end;
-almost_sorted([H|T], false) ->
-  case H > hd(T) of
-    true -> false;
-    false -> almost_sorted(T, false)
-  end.
+almost_sorted([_,_]) -> true;
+almost_sorted([X,Y,Z|T]) when X > Y -> is_sorted([Y,Z|T]);
+almost_sorted([X,Y,Z|T]) when X < Y, X > Z -> is_sorted([X,Y|T]);
+almost_sorted([X,Y,Z|T]) when X < Y, X < Z, Y > Z -> is_sorted([X,Z|T]);
+almost_sorted([X,Y,Z|T]) when X < Y, X < Z, Y < Z -> almost_sorted([Y,Z|T]).
+
+is_sorted([_]) -> true;
+is_sorted([X,Y|_]) when X > Y -> false;
+is_sorted([X,Y|T]) when X < Y -> is_sorted([Y|T]).
 
 win_test_case(TestCase) ->
-  case almost_sorted(TestCase, true) of
+  case almost_sorted(TestCase) of
     true -> true;
     false -> 
-      case lists:all(fun(Element) -> win_test_case(Element) end, [lists:delete(Element, TestCase) || Element <- TestCase]) of
+      case lists:all(fun(Element) -> win_test_case(TestCase -- [Element]) end, TestCase) of
       true -> false;
       false -> true
     end
