@@ -41,7 +41,7 @@ object Solution {
   def solveTestcase(friendly: Long, unfriendlyNums: Array[Long]):Long = {
     var friendlyFactors:Set[Long] = allFactors(friendly)
     val commonFactors:Set[Long] = unfriendlyNums.map(gcd(friendly,_)).toSet
-    commonFactors.foreach(ele => if(friendlyFactors.contains(ele)) friendlyFactors -= ele)
+    for(friendlyNum <- friendlyFactors; commonNum <- commonFactors) if(commonNum%friendlyNum == 0) friendlyFactors -= friendlyNum
     friendlyFactors.size
   }
 
