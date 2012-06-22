@@ -5,7 +5,7 @@
 -import(ets).
 -record(component, {connect_two, connect_self, add_edge_self, num_connect_two, num_connect_self, num_add_edge_self}).
 
-main() -> io:fwrite("~w~n", [solve_average_edges(get_int_from_stdin())]).
+main() -> io:fwrite("~w~n", [trunc(solve_average_edges(get_int_from_stdin()))]).
 
 choose_two(Num) -> Num*(Num-1) bsr 1.  
 
@@ -36,20 +36,16 @@ avg_edges_till_connected(Components, NumEdges) ->
         CompNumAddEdgeSelf = Comp#component.num_add_edge_self,
         CompNumConnectTwo = Comp#component.num_connect_two,
         GraphWithoutComp = dict:erase(Tuple, Components),
-        %io:fwrite("before connectMap~n"),
         AvgConnect = avg_edges_till_connected(combine_components(GraphWithoutComp, CompConnectSelf()), NumEdges - 1),
         ConnectSelfSum = AvgConnect  * CompNumConnectSelf(),
-        %io:fwrite("after ConnectMap~n"),
         AvgAddEdgeConnect = avg_edges_till_connected(combine_components(GraphWithoutComp, CompAddEdgeSelf()), NumEdges - 1),
         AddedEdgeSum = AvgAddEdgeConnect * CompNumAddEdgeSelf(),
-        %io:fwrite("after AddEdgeMap~n"),
         InterCompSum = dict:fold(fun(InterTuple, InterValue, InterAccum) ->
           InterAccumSum = InterAccum,
           InterComp = {InterTuple, InterValue},
           InterGraphWithoutComp = dict:erase(InterTuple, GraphWithoutComp),
           AvgInterEdge = avg_edges_till_connected(combine_components(InterGraphWithoutComp, CompConnectTwo(InterComp)), NumEdges - 1),
           InterSum = AvgInterEdge * CompNumConnectTwo(InterComp),
-          %io:fwrite("after Double sum~n"),
           InterSum + InterAccumSum
         end, 0, Accum),
         {dict:store(Tuple, Value, Accum), IterSum + ConnectSelfSum + AddedEdgeSum + InterCompSum}
